@@ -97,10 +97,10 @@ Creating apiv2 ... done
 #### Monitor
 ```
 (Flask-MongoDB-APIv2) docker-compose ps
-Name             Command             State            Ports
----------------------------------------------------------------------
-api    flask run --host=0.0.0.0      Up      0.0.0.0:5000->5000/tcp
-db     docker-entrypoint.sh mongod   Up      0.0.0.0:27017->27017/tcp
+Name              Command             State            Ports
+----------------------------------------------------------------------
+apiv2   flask run --host=0.0.0.0      Up      0.0.0.0:5000->5000/tcp
+db      docker-entrypoint.sh mongod   Up      0.0.0.0:27017->27017/tcp
 
 (Flask-MongoDB-APIv2) docker volume ls
 DRIVER    VOLUME NAME
@@ -111,7 +111,7 @@ local     mongodb_data
 (Flask-MongoDB-APIv2) docker inspect mongodb_data
 [
     {
-        "CreatedAt": "2021-03-28T16:01:15+02:00",
+        "CreatedAt": "2021-03-30T12:25:21+02:00",
         "Driver": "local",
         "Labels": {
             "com.docker.compose.project": "flask-mongodb-apiv2",
@@ -136,9 +136,14 @@ ____
 
 ### Tests
 
-curl http://127.0.0.1:5000/api/movies
+Display the full list of entries:
+```
+curl http://127.0.0.1:5000/api/vaults
 []%
+```
 
+User creation, initial login:
+```
 curl -H "Content-Type: application/json" --data '{"email": "carmelo@example.com", "password": "test123"}' -X POST http://127.0.0.1:5000/api/auth/signup
 {"id": "6062df650fd2f46e6d12e41c"}
 
@@ -146,7 +151,10 @@ curl -H "Content-Type: application/json" --data '{"email": "carmelo@example.com"
 {"token": "eyJ0...UDwk"}
 
 export TOKEN="eyJ0...UDwk"
+```
 
+Create (POST), remove (DELETE) examples:
+```
 curl -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" --data '{"username": "user1", "full_url": "https://www.google.com/", "short_name": "Google", "notes": ["search engine", "sergey brin", "larry page"]}' -X POST http://127.0.0.1:5000/api/vaults
 {"id": "6062f667c2f387092a559f8d"}
 
@@ -159,6 +167,10 @@ curl -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" --dat
 curl -H "Content-Type: application/json" -H "Authorization: Bearer $TOKEN" -X DELETE http://127.0.0.1:5000/api/vaults/6062f69ec2f387092a559f8f
 ""
 
+curl http://127.0.0.1:5000/api/vaults
+[{"_id": {"$oid": "6062f667c2f387092a559f8d"}, "username": "user1", "full_url": "https://www.google.com/", "short_name": "Google", "notes": ["search engine", "sergey brin", "larry page"], "added_by": {"$oid": "6062f64ac2f387092a559f8c"}}, {"_id": {"$oid": "6062f670c2f387092a559f8e"}, "username": "user2", "full_url": "https://www.bing.com/", "short_name": "Bing", "notes": ["search engine", "bill gates", "taylor swift"], "added_by": {"$oid": "6062f64ac2f387092a559f8c"}}]%
+```
+
 ____
 
 ### Resources
@@ -167,4 +179,5 @@ ____
 - [Setup & basic CRUD API...](https://dev.to/paurakhsharma/flask-rest-api-part-0-setup-basic-crud-api-4650)
 - [Manage data in Docker](https://docs.docker.com/storage/)
 - [Persistent Databases Using Docker’s Volumes and MongoDB](https://betterprogramming.pub/persistent-databases-using-dockers-volumes-and-mongodb-9ac284c25b39)
+- [Compose file version 3 reference](https://docs.docker.com/compose/compose-file/compose-file-v3/)
 
